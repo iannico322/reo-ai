@@ -1,0 +1,4 @@
+Update the status of an application
+Removal of unnecessary fees in the assessment
+Unable to proceed to "For Issuance" status
+Missing fees in the LOB

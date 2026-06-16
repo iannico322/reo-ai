@@ -1,0 +1,4 @@
+Fixed the setup of fees in the LOB
+Added the necessary fees in the LOB
+Used level 2 tool to fix the issue
+Utilized the level 2 support tool to clear the plate fee of an application

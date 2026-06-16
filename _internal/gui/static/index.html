@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reo AI</title>
+<style>
+:root {
+  --bg-main:    #0a0e1a;
+  --bg-sidebar: #0d1220;
+  --bg-header:  #0d1525;
+  --bg-chat:    #080d18;
+  --bg-card:    #111827;
+  --bg-input:   #0d1525;
+  --bg-entry:   #131c2e;
+  --bg-panel:   #0d1220;
+  --cyan:       #00b4d8;
+  --cyan2:      #0096c7;
+  --purple:     #7b61ff;
+  --green:      #06d6a0;
+  --red:        #ef476f;
+  --orange:     #ffd166;
+  --gray:       #4a5568;
+  --lgray:      #8899aa;
+  --white:      #e2e8f0;
+  --btn-teal:   #065a6b;
+  --btn-teal2:  #0891b2;
+  --btn-navy:   #1e3a5c;
+  --btn-navy2:  #2d5a8e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-main);
+  color: var(--white);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  user-select: none;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--btn-navy); border-radius: 2px; }
+
+/* ── SIDEBAR ───────────────────────────────────────────────────────── */
+.sidebar {
+  width: 120px;
+  min-width: 120px;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid #1e3a5c33;
+}
+
+.sidebar-logo {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--cyan);
+  font-weight: bold;
+}
+
+.sidebar-sep {
+  width: calc(100% - 32px);
+  height: 1px;
+  background: #1e3a5c;
+  margin-bottom: 8px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+}
+
+.nav-btn {
+  width: 100%;
+  padding: 10px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: var(--lgray);
+  font-size: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-btn .nav-icon { font-size: 18px; }
+.nav-btn:hover { background: #151f30; }
+.nav-btn.active { background: var(--btn-navy); color: var(--cyan); }
+
+.sidebar-footer {
+  padding: 8px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.agent-status {
+  background: #0d1a2a;
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: center;
+  width: 100%;
+}
+.agent-status .lbl  { font-size: 9px; color: var(--lgray); }
+.agent-status .val  { font-size: 9px; font-weight: bold; color: var(--green); }
+.agent-status .dot  { font-size: 18px; color: var(--cyan); line-height: 1.2; }
+.ver { font-size: 9px; color: var(--gray); }
+
+/* ── CENTER ────────────────────────────────────────────────────────── */
+.center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── HEADER ────────────────────────────────────────────────────────── */
+header {
+  background: var(--bg-header);
+  height: 60px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  border-bottom: 1px solid #1e3a5c33;
+  flex-shrink: 0;
+}
+
+.brand { display: flex; align-items: center; gap: 6px; }
+.brand-icon { font-size: 22px; color: var(--cyan); font-weight: bold; }
+.brand-name { font-size: 17px; font-weight: bold; color: var(--white); letter-spacing: 1px; }
+
+#status-dot { font-size: 11px; color: var(--green); margin-left: 4px; }
+
+.hdr-btns { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+.btn {
+  padding: 6px 13px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: var(--white);
+  white-space: nowrap;
+}
+.btn-navy  { background: var(--btn-navy); }
+.btn-navy:hover  { background: var(--btn-navy2); }
+.btn-teal  { background: var(--btn-teal); }
+.btn-teal:hover  { background: var(--btn-teal2); }
+.btn-green { background: #064e3b; }
+.btn-green:hover { background: #047857; }
+.btn-clr   { background: #1a0d0d; }
+.btn-clr:hover   { background: #3d1515; }
+
+/* ── CHAT AREA ─────────────────────────────────────────────────────── */
+.chat-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 10px 12px 0;
+}
+
+.chat-titlebar {
+  background: var(--bg-card);
+  border-radius: 10px 10px 0 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.win-dots { display: flex; gap: 5px; }
+.wd { width: 10px; height: 10px; border-radius: 50%; }
+
+#chat {
+  flex: 1;
+  background: var(--bg-chat);
+  overflow-y: auto;
+  padding: 12px 16px;
+  min-height: 0;
+  scroll-behavior: smooth;
+}
+
+.msg { margin-bottom: 14px; }
+
+.msg-hdr {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.msg-sender {
+  font-size: 11px;
+  font-weight: bold;
+}
+.msg-sender.assistant { color: var(--cyan); }
+.msg-sender.user      { color: var(--purple); }
+.msg-time { font-size: 9px; color: var(--gray); }
+
+.msg-body {
+  font-size: 12px;
+  line-height: 1.55;
+  padding-left: 4px;
+  user-select: text;
+}
+.msg-body.assistant { color: #c8d8f0; }
+.msg-body.user      { color: #d8ccff; }
+
+/* ── CODE BLOCKS ───────────────────────────────────────────────────── */
+.code-block {
+  background: #060c18;
+  border: 1px solid #1e3a5c;
+  border-radius: 8px;
+  margin: 8px 0 4px;
+  overflow: hidden;
+}
+
+.code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 12px;
+  background: #0d1f3c;
+  border-bottom: 1px solid #1e3a5c;
+}
+
+.code-lang {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--cyan);
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid #1e3a5c;
+  border-radius: 5px;
+  color: var(--lgray);
+  font-size: 10px;
+  font-family: inherit;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.copy-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+.code-block pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #c8daf0;
+  white-space: pre;
+}
+
+.code-block pre::-webkit-scrollbar { height: 4px; }
+.code-block pre::-webkit-scrollbar-thumb { background: #1e3a5c; }
+
+/* inline code */
+.inline-code {
+  background: #0d1f3c;
+  border: 1px solid #1e3a5c;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: 'Consolas', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+}
+
+.sys-msg {
+  text-align: center;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--gray);
+  margin: 8px 0;
+}
+.sys-msg::before { content: '─── '; }
+.sys-msg::after  { content: ' ───'; }
+
+/* ── THINKING INDICATOR ────────────────────────────────────────────── */
+#thinking-indicator {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: #0d1f3c;
+  border: 1px solid #1e3a5c;
+  border-radius: 10px;
+  animation: think-fadein 0.25s ease;
+}
+#thinking-indicator.visible { display: flex; }
+
+@keyframes think-fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.think-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--cyan);
+}
+
+.think-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.think-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+.think-dot:nth-child(1) { animation-delay: 0s; }
+.think-dot:nth-child(2) { animation-delay: 0.2s; }
+.think-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-bounce {
+  0%, 60%, 100% { transform: translateY(0);   opacity: 0.35; }
+  30%           { transform: translateY(-7px); opacity: 1;    }
+}
+
+/* ── SUGGESTED BAR ─────────────────────────────────────────────────── */
+.sug-bar {
+  background: var(--bg-card);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.sug-lbl { font-size: 8px; font-weight: bold; color: var(--gray); white-space: nowrap; }
+.sug-btn {
+  padding: 5px 12px;
+  background: #131c2e;
+  border: none;
+  border-radius: 8px;
+  color: var(--lgray);
+  font-size: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.sug-btn:hover { background: #1e3a5c; }
+
+/* ── INPUT BAR ─────────────────────────────────────────────────────── */
+.input-area {
+  padding: 0 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.input-bar {
+  background: var(--bg-input);
+  height: 62px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+#mic-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--btn-navy);
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#mic-btn:hover { background: var(--btn-navy2); }
+#mic-btn.listening { animation: mic-pulse 0.76s ease-in-out infinite; }
+
+@keyframes mic-pulse {
+  0%, 100% { background: #7b241c; }
+  50%       { background: #c0392b; }
+}
+
+#text-input {
+  flex: 1;
+  background: var(--bg-entry);
+  border: 1px solid #1e3a5c;
+  border-radius: 10px;
+  height: 44px;
+  padding: 0 14px;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+  user-select: text;
+}
+#text-input:focus { border-color: var(--cyan); }
+#text-input::placeholder { color: var(--gray); }
+
+.attach-btn {
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--gray);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#send-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--btn-teal);
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  color: var(--white);
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#send-btn:hover { background: var(--btn-teal2); }
+
+.disclaimer { font-size: 8px; color: var(--gray); text-align: center; }
+
+/* ── RIGHT PANEL ───────────────────────────────────────────────────── */
+.rpanel {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border-left: 1px solid #1e3a5c33;
+}
+
+.avatar-card {
+  background: #0a1628;
+  border-radius: 12px;
+  margin: 14px 10px 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-name    { font-size: 14px; font-weight: bold; color: var(--white); margin-top: 6px; }
+.avatar-version { background: var(--btn-navy); border-radius: 6px; padding: 2px 8px;
+                  font-size: 9px; font-weight: bold; color: var(--cyan); margin: 4px 0; }
+.avatar-sub     { font-size: 9px; color: var(--gray); }
+
+.sec-lbl { font-size: 9px; font-weight: bold; color: var(--lgray);
+            padding: 8px 14px 4px; letter-spacing: 0.5px; }
+
+.caps-card {
+  background: #0a1628;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin: 0 10px 10px;
+}
+.cap-row  { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; }
+.cap-icon { font-size: 13px; color: var(--cyan); width: 20px; flex-shrink: 0; }
+.cap-ttl  { font-size: 10px; font-weight: bold; color: var(--white); }
+.cap-sub  { font-size: 8px; color: var(--gray); }
+
+.metrics-card {
+  background: #0a1628;
+  border-radius: 10px;
+  margin: 0 10px 14px;
+  padding: 10px;
+}
+.gauges-row { display: flex; justify-content: space-around; padding: 6px 0; }
+
+/* ── MODALS ────────────────────────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.72);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-main);
+  border: 1px solid #1e3a5c;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-hdr {
+  background: var(--bg-header);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-ttl { font-size: 15px; font-weight: bold; color: var(--cyan); }
+.modal-x {
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.modal-x:hover { background: #1e293b; color: var(--red); }
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid #1e3a5c33;
+}
+
+/* form elements inside modals */
+.flbl { font-size: 11px; font-weight: bold; color: var(--lgray); margin-bottom: 4px; }
+.fhint{ font-size: 10px; color: var(--gray); margin-bottom: 6px; }
+
+.finput {
+  width: 100%;
+  background: var(--bg-entry);
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  height: 38px;
+  padding: 0 12px;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  margin-bottom: 16px;
+  user-select: text;
+}
+.finput:focus { border-color: var(--cyan2); }
+.finput::placeholder { color: var(--gray); }
+
+/* steps */
+.steps-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.steps-lbl { font-size: 11px; font-weight: bold; color: var(--lgray); }
+
+#steps-box {
+  background: var(--bg-card);
+  border-radius: 10px;
+  padding: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.step-row {
+  background: #151f30;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.step-num { font-size: 12px; font-weight: bold; color: var(--cyan); width: 20px; flex-shrink: 0; }
+
+.step-sel {
+  background: var(--btn-navy);
+  border: none;
+  border-radius: 6px;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 5px 6px;
+  cursor: pointer;
+  outline: none;
+  min-width: 118px;
+}
+
+.step-inp {
+  flex: 1;
+  background: var(--bg-entry);
+  border: 1px solid #1e3a5c;
+  border-radius: 6px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+  user-select: text;
+}
+
+.step-del {
+  background: #1e1020;
+  border: none;
+  border-radius: 6px;
+  color: var(--gray);
+  font-size: 11px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.step-del:hover { background: var(--red); color: #fff; }
+
+/* shared buttons */
+.btnl {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--white);
+  transition: background 0.15s;
+}
+.b-sec  { background: #1e293b; }
+.b-sec:hover  { background: #334155; }
+.b-prim { background: var(--btn-teal); }
+.b-prim:hover { background: var(--btn-teal2); }
+.b-del  { background: #7b0e22; }
+.b-del:hover  { background: var(--red); }
+
+/* skills list */
+.skill-card {
+  background: var(--bg-card);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.skill-info   { flex: 1; }
+.skill-trig   { font-size: 12px; font-weight: bold; color: var(--cyan); margin-bottom: 4px; }
+.skill-step   { font-size: 10px; color: var(--gray); }
+.empty-skills { text-align: center; color: var(--gray); font-size: 12px; padding: 30px 0; }
+
+/* teach modal width */
+#teach-overlay .modal { width: 640px; }
+#skills-overlay .modal { width: 540px; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ──────────────────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">◈</div>
+  <div class="sidebar-sep"></div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" onclick="navSelect(this,'Chat')">
+      <span class="nav-icon">💬</span>Chat
+    </button>
+    <button class="nav-btn" onclick="navSelect(this,'Memory')">
+      <span class="nav-icon">🧠</span>Memory
+    </button>
+    <button class="nav-btn" onclick="navSelect(this,'Skills')">
+      <span class="nav-icon">⚡</span>Skills
+    </button>
+    <button class="nav-btn" onclick="navSelect(this,'Tools')">
+      <span class="nav-icon">🔧</span>Tools
+    </button>
+    <button class="nav-btn" onclick="navSelect(this,'Analytics')">
+      <span class="nav-icon">📊</span>Analytics
+    </button>
+    <button class="nav-btn" onclick="navSelect(this,'Settings')">
+      <span class="nav-icon">⚙️</span>Settings
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="agent-status">
+      <div class="lbl">Agent Status</div>
+      <div class="val">OPTIMAL</div>
+      <div class="dot">●</div>
+    </div>
+    <div class="ver" id="ver-badge">v2.3.0</div>
+  </div>
+</aside>
+
+<!-- ── CENTER ────────────────────────────────────────────────────────────── -->
+<main class="center">
+
+  <header>
+    <div class="brand">
+      <span class="brand-icon">◈</span>
+      <span class="brand-name" id="brand-name">REO</span>
+    </div>
+    <span id="status-dot">● Online</span>
+    <div class="hdr-btns">
+      <button class="btn btn-clr"   onclick="doClearMemory()">🗑 Clear Memory</button>
+      <button class="btn btn-teal"  onclick="openTeach()">＋ Teach</button>
+      <button class="btn btn-green" id="voice-btn" onclick="doToggleVoice()">🔊 Voice ON</button>
+      <button class="btn btn-navy"  onclick="openSkills()">⚡ My Skills</button>
+    </div>
+  </header>
+
+  <div class="chat-wrap">
+    <div class="chat-titlebar">
+      <div class="win-dots">
+        <div class="wd" style="background:#ef476f"></div>
+        <div class="wd" style="background:#ffd166"></div>
+        <div class="wd" style="background:#06d6a0"></div>
+      </div>
+      <span style="font-size:11px;font-weight:bold;color:var(--lgray);margin-left:6px">Conversation</span>
+    </div>
+    <div id="chat">
+      <div id="thinking-indicator">
+        <span class="think-label">◈ Reo</span>
+        <div class="think-dots">
+          <div class="think-dot"></div>
+          <div class="think-dot"></div>
+          <div class="think-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sug-bar">
+      <span class="sug-lbl">SUGGESTED ACTIONS</span>
+      <button class="sug-btn" onclick="sendText('Suggest Dinner')">⚡ Suggest Dinner</button>
+      <button class="sug-btn" onclick="sendText('Budget Meals')">💰 Budget Meals</button>
+      <button class="sug-btn" onclick="sendText('Local Favorites')">📍 Local Favorites</button>
+      <button class="sug-btn" onclick="sendText('Quick Recipes')">⚡ Quick Recipes</button>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-bar">
+      <button id="mic-btn" onclick="doListen()">🎤</button>
+      <input type="text" id="text-input" placeholder="Ask me anything…"
+             onkeydown="if(event.key==='Enter') doSend()">
+      <span class="attach-btn">📎</span>
+      <button id="send-btn" onclick="doSend()">➤</button>
+    </div>
+    <div class="disclaimer" id="disclaimer">Reo can make mistakes. Verify important information.</div>
+  </div>
+
+</main>
+
+<!-- ── RIGHT PANEL ───────────────────────────────────────────────────────── -->
+<aside class="rpanel">
+  <div class="avatar-card">
+    <canvas id="avatar" width="100" height="100"></canvas>
+    <div class="avatar-name" id="panel-name">Reo AI</div>
+    <div class="avatar-version" id="panel-ver">v2.3.0</div>
+    <div class="avatar-sub">Your personal AI assistant</div>
+  </div>
+
+  <div class="sec-lbl">CAPABILITIES</div>
+  <div class="caps-card">
+    <div class="cap-row"><span class="cap-icon">💬</span><div><div class="cap-ttl">Conversational AI</div><div class="cap-sub">Natural language understanding</div></div></div>
+    <div class="cap-row"><span class="cap-icon">🧠</span><div><div class="cap-ttl">Context Memory</div><div class="cap-sub">Long-term conversation memory</div></div></div>
+    <div class="cap-row"><span class="cap-icon">⚡</span><div><div class="cap-ttl">Task Automation</div><div class="cap-sub">Execute tasks and routines</div></div></div>
+    <div class="cap-row"><span class="cap-icon">🌐</span><div><div class="cap-ttl">Web Search</div><div class="cap-sub">Real-time information retrieval</div></div></div>
+    <div class="cap-row"><span class="cap-icon">⌨</span><div><div class="cap-ttl">Code Assistant</div><div class="cap-sub">Write, debug, and explain code</div></div></div>
+    <div class="cap-row"><span class="cap-icon">🎤</span><div><div class="cap-ttl">Voice Interaction</div><div class="cap-sub">Speak and listen naturally</div></div></div>
+  </div>
+
+  <div class="sec-lbl">SYSTEM METRICS</div>
+  <div class="metrics-card">
+    <div class="gauges-row">
+      <canvas id="g-cpu" width="64" height="64"></canvas>
+      <canvas id="g-mem" width="64" height="64"></canvas>
+      <canvas id="g-res" width="64" height="64"></canvas>
+    </div>
+  </div>
+</aside>
+
+<!-- ── TEACH MODAL ───────────────────────────────────────────────────────── -->
+<div class="overlay" id="teach-overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl">✦  Teach Reo a New Skill</span>
+      <button class="modal-x" onclick="closeTeach()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="flbl">Trigger phrase</div>
+      <div class="fhint">What you say to activate this skill:</div>
+      <input type="text" class="finput" id="trigger-inp"
+             placeholder="e.g. start my morning routine">
+
+      <div class="steps-hdr">
+        <span class="steps-lbl">Steps — executed in order</span>
+        <button class="btn btn-teal" style="font-size:11px;padding:5px 12px" onclick="addStep()">
+          ＋ Add Step
+        </button>
+      </div>
+      <div id="steps-box"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btnl b-sec"  onclick="closeTeach()">Cancel</button>
+      <button class="btnl b-prim" onclick="saveSkill()">Save Skill</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SKILLS MODAL ──────────────────────────────────────────────────────── -->
+<div class="overlay" id="skills-overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl">✦  My Skills</span>
+      <button class="modal-x" onclick="closeSkills()">✕</button>
+    </div>
+    <div class="modal-body" style="min-height:160px">
+      <div id="skills-list"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btnl b-sec" onclick="closeSkills()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Constants ─────────────────────────────────────────────────────── */
+const ACTION_MAP = {
+  'Open Website': 'open_website',
+  'Open App':     'open_app',
+  'Run Command':  'run_command',
+  'Type Text':    'type_text',
+  'Wait (secs)':  'wait',
+};
+const PLACEHOLDERS = {
+  'Open Website': 'e.g. youtube.com',
+  'Open App':     'e.g. Spotify',
+  'Run Command':  'e.g. notepad.exe',
+  'Type Text':    'e.g. Hello, World!',
+  'Wait (secs)':  'e.g. 2',
+};
+
+let voiceOn = true;
+
+/* ── Startup ───────────────────────────────────────────────────────── */
+window.addEventListener('pywebviewready', async () => {
+  try {
+    const cfg = await window.pywebview.api.get_config();
+    applyConfig(cfg);
+
+    const hist = await window.pywebview.api.get_history();
+    if (hist && hist.length) {
+      const recent = hist.slice(-16);
+      const name = document.getElementById('brand-name').textContent;
+      for (const m of recent) {
+        if (m.role === 'user')
+          appendMessage('user', 'You', m.content, '');
+        else if (m.role === 'assistant')
+          appendMessage('assistant', name, m.content, '');
+      }
+      appendSystem('Previous session restored');
+    }
+
+    await window.pywebview.api.startup();
+  } catch (e) {
+    console.error('init:', e);
+  }
+});
+
+function applyConfig(cfg) {
+  voiceOn = cfg.voice_on;
+  const name    = cfg.name    || 'Reo';
+  const version = cfg.version || '2.3.0';
+  document.getElementById('brand-name').textContent    = name.toUpperCase();
+  document.getElementById('panel-name').textContent    = name + ' AI';
+  document.getElementById('panel-ver').textContent     = 'v' + version;
+  document.getElementById('ver-badge').textContent     = 'v' + version;
+  document.getElementById('disclaimer').textContent    =
+    name + ' can make mistakes. Verify important information.';
+  document.getElementById('thinking-indicator').querySelector('.think-label').textContent =
+    '◈ ' + name;
+  document.title = name + ' AI';
+  updateVoiceBtn();
+}
+
+/* ── Functions called by Python via evaluate_js() ──────────────────── */
+function showThinking(name) {
+  const el = document.getElementById('thinking-indicator');
+  el.querySelector('.think-label').textContent = '◈ ' + (name || 'Reo');
+  el.classList.add('visible');
+  // keep it at bottom of chat
+  const chat = document.getElementById('chat');
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function hideThinking() {
+  document.getElementById('thinking-indicator').classList.remove('visible');
+}
+
+function appendMessage(role, name, text, time) {
+  hideThinking();
+  const chat = document.getElementById('chat');
+  const ts   = time || new Date().toLocaleTimeString('en-US',
+    { hour: '2-digit', minute: '2-digit' });
+  const icon = role === 'assistant' ? '◈' : '▶';
+  const d = document.createElement('div');
+  d.className = 'msg';
+  d.innerHTML =
+    `<div class="msg-hdr">` +
+      `<span class="msg-sender ${role}">${icon} ${esc(name)}</span>` +
+      `<span class="msg-time">${esc(ts)}</span>` +
+    `</div>` +
+    `<div class="msg-body ${role}">${formatMsg(text)}</div>`;
+  // insert before the thinking indicator so it stays at the bottom
+  chat.insertBefore(d, document.getElementById('thinking-indicator'));
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function appendSystem(text) {
+  const chat = document.getElementById('chat');
+  const d = document.createElement('div');
+  d.className = 'sys-msg';
+  d.textContent = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function setStatus(text, color) {
+  const el = document.getElementById('status-dot');
+  el.textContent = '● ' + text;
+  el.style.color  = color || '#06d6a0';
+}
+
+function onListenResult(text) {
+  document.getElementById('text-input').value = text;
+  doSend();
+}
+
+function stopListeningUI() {
+  document.getElementById('mic-btn').classList.remove('listening');
+}
+
+/* ── Chat actions ──────────────────────────────────────────────────── */
+async function doSend() {
+  const inp  = document.getElementById('text-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  await window.pywebview.api.send_message(text);
+}
+
+function sendText(text) {
+  document.getElementById('text-input').value = text;
+  doSend();
+}
+
+function doListen() {
+  document.getElementById('mic-btn').classList.add('listening');
+  window.pywebview.api.start_listening();
+}
+
+async function doToggleVoice() {
+  voiceOn = await window.pywebview.api.toggle_voice();
+  updateVoiceBtn();
+}
+
+function updateVoiceBtn() {
+  const b = document.getElementById('voice-btn');
+  if (voiceOn) {
+    b.textContent = '🔊 Voice ON';
+    b.style.background = '#064e3b';
+  } else {
+    b.textContent = '🔇 Voice OFF';
+    b.style.background = '#3a1a1a';
+  }
+}
+
+async function doClearMemory() {
+  if (confirm('Erase conversation history?\nLearned skills are kept.'))
+    await window.pywebview.api.clear_memory();
+}
+
+function navSelect(btn, label) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (label !== 'Chat') appendSystem('[' + label + ' view — coming soon]');
+}
+
+/* ── Teach Modal ───────────────────────────────────────────────────── */
+function openTeach() {
+  document.getElementById('trigger-inp').value = '';
+  document.getElementById('steps-box').innerHTML = '';
+  addStep();
+  document.getElementById('teach-overlay').classList.add('open');
+}
+function closeTeach() {
+  document.getElementById('teach-overlay').classList.remove('open');
+}
+
+function addStep() {
+  const box  = document.getElementById('steps-box');
+  const idx  = box.children.length + 1;
+  const opts = Object.keys(ACTION_MAP).map(k =>
+    `<option value="${k}">${k}</option>`).join('');
+  const row = document.createElement('div');
+  row.className = 'step-row';
+  row.innerHTML =
+    `<span class="step-num">${idx}.</span>` +
+    `<select class="step-sel" onchange="onTypeChange(this)"><br>${opts}</select>` +
+    `<input class="step-inp" type="text" placeholder="${PLACEHOLDERS['Open Website']}">` +
+    `<button class="step-del" onclick="delStep(this)">✕</button>`;
+  box.appendChild(row);
+}
+
+function onTypeChange(sel) {
+  sel.closest('.step-row').querySelector('.step-inp').placeholder =
+    PLACEHOLDERS[sel.value] || '';
+}
+
+function delStep(btn) {
+  btn.closest('.step-row').remove();
+  renumberSteps();
+}
+
+function renumberSteps() {
+  document.querySelectorAll('#steps-box .step-row').forEach((r, i) => {
+    r.querySelector('.step-num').textContent = (i + 1) + '.';
+  });
+}
+
+async function saveSkill() {
+  const trigger = document.getElementById('trigger-inp').value.trim();
+  if (!trigger) { alert('Enter a trigger phrase.'); return; }
+
+  const rows = document.querySelectorAll('#steps-box .step-row');
+  if (!rows.length) { alert('Add at least one step.'); return; }
+
+  const steps = [];
+  let i = 0;
+  for (const row of rows) {
+    i++;
+    const type = row.querySelector('.step-sel').value;
+    const data = row.querySelector('.step-inp').value.trim();
+    if (!data) { alert(`Step ${i}: fill in the action details.`); return; }
+    steps.push({ action_type: ACTION_MAP[type], action_data: data });
+  }
+
+  await window.pywebview.api.save_skill(trigger, steps);
+  closeTeach();
+}
+
+/* ── Skills Modal ──────────────────────────────────────────────────── */
+async function openSkills() {
+  document.getElementById('skills-list').innerHTML =
+    '<div class="empty-skills">Loading…</div>';
+  document.getElementById('skills-overlay').classList.add('open');
+  const skills = await window.pywebview.api.get_skills();
+  renderSkills(skills);
+}
+function closeSkills() {
+  document.getElementById('skills-overlay').classList.remove('open');
+}
+
+function renderSkills(skills) {
+  const list = document.getElementById('skills-list');
+  if (!skills || !skills.length) {
+    list.innerHTML = '<div class="empty-skills">No skills yet — use ＋ Teach to get started.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  for (const s of skills) {
+    const card = document.createElement('div');
+    card.className = 'skill-card';
+    const stepsHtml = (s.steps || []).map((st, i) => {
+      const t = (st.action_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const d = (st.action_data || '').substring(0, 44);
+      return `<div class="skill-step">${i+1}. ${esc(t)} ▸ ${esc(d)}</div>`;
+    }).join('');
+    card.innerHTML =
+      `<div class="skill-info">` +
+        `<div class="skill-trig">"${esc(s.trigger)}"</div>${stepsHtml}` +
+      `</div>` +
+      `<button class="btnl b-del" style="padding:5px 12px;font-size:11px"` +
+        ` onclick="deleteSkill(this, ${JSON.stringify(s.trigger)})">✕</button>`;
+    list.appendChild(card);
+  }
+}
+
+async function deleteSkill(btn, trigger) {
+  if (!confirm(`Delete skill:\n"${trigger}"?`)) return;
+  await window.pywebview.api.delete_skill(trigger);
+  const skills = await window.pywebview.api.get_skills();
+  renderSkills(skills);
+}
+
+/* overlay backdrop close */
+document.getElementById('teach-overlay').addEventListener('click', e => {
+  if (e.target.id === 'teach-overlay') closeTeach();
+});
+document.getElementById('skills-overlay').addEventListener('click', e => {
+  if (e.target.id === 'skills-overlay') closeSkills();
+});
+
+/* ── Utility ───────────────────────────────────────────────────────── */
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Message formatter — handles code blocks and inline code ───────── */
+function formatMsg(text) {
+  let html = '';
+  // Split on triple-backtick fences: ```lang\n...\n```
+  const parts = String(text).split(/(```[\s\S]*?```)/g);
+  for (const part of parts) {
+    if (part.startsWith('```')) {
+      const inner = part.slice(3, -3);
+      const nl    = inner.indexOf('\n');
+      const lang  = nl > -1 ? inner.slice(0, nl).trim() : '';
+      const code  = nl > -1 ? inner.slice(nl + 1) : inner;
+      html += `<div class="code-block">` +
+              `<div class="code-bar">` +
+              `<span class="code-lang">${esc(lang || 'code')}</span>` +
+              `<button class="copy-btn" onclick="copyCode(this)">Copy</button>` +
+              `</div><pre>${esc(code)}</pre></div>`;
+    } else {
+      // Handle inline `code` with single backticks
+      const inlined = part.replace(/`([^`]+)`/g, (_, c) =>
+        `<span class="inline-code">${esc(c)}</span>`);
+      // Preserve newlines as <br>
+      html += inlined.replace(/\n/g, '<br>');
+    }
+  }
+  return html;
+}
+
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('pre').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+  }).catch(() => {
+    btn.textContent = 'Error';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+  });
+}
+
+/* ── Avatar animation ──────────────────────────────────────────────── */
+(function() {
+  const cv = document.getElementById('avatar');
+  const cx = cv.getContext('2d');
+  const S  = 100, H = S / 2;
+  let phase = 0, rot = 0;
+
+  function cyanRgb(t) {
+    const v = Math.round(Math.max(0, Math.min(1, t)) * 215);
+    return `rgb(0,${Math.round(v/2)},${v})`;
+  }
+
+  function frame() {
+    cx.clearRect(0, 0, S, S);
+    const rArc = H * 0.90;
+    const toR  = Math.PI / 180;
+
+    // outer rotating arc
+    cx.beginPath();
+    cx.arc(H, H, rArc, rot * toR, (rot + 260) * toR);
+    cx.strokeStyle = '#00b4d8';
+    cx.lineWidth   = 2;
+    cx.stroke();
+
+    // counter arc
+    cx.beginPath();
+    cx.arc(H, H, rArc, (rot + 150) * toR, (rot + 230) * toR);
+    cx.strokeStyle = '#005577';
+    cx.lineWidth   = 1;
+    cx.stroke();
+
+    // three pulsing rings
+    [H * 0.78, H * 0.62, H * 0.46].forEach((r, i) => {
+      const pulse = (Math.sin(phase + i * Math.PI * 2 / 3) + 1) / 2;
+      cx.beginPath();
+      cx.arc(H, H, r, 0, Math.PI * 2);
+      cx.strokeStyle = cyanRgb(pulse * 0.75 + 0.25);
+      cx.lineWidth   = Math.max(1, pulse * 2 + 0.5);
+      cx.stroke();
+    });
+
+    // inner bg
+    const rBg = H * 0.50;
+    cx.beginPath();
+    cx.arc(H, H, rBg, 0, Math.PI * 2);
+    cx.fillStyle   = '#0d1f3c';
+    cx.fill();
+    cx.strokeStyle = '#0a3d5c';
+    cx.lineWidth   = 1;
+    cx.stroke();
+
+    // center glyph
+    cx.fillStyle     = '#00b4d8';
+    cx.font          = `bold ${Math.round(S * 0.26)}px "Segoe UI"`;
+    cx.textAlign     = 'center';
+    cx.textBaseline  = 'middle';
+    cx.fillText('◈', H, H);
+
+    phase += 0.055;
+    rot   += 1.8;
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── Gauge canvases ────────────────────────────────────────────────── */
+function drawGauge(id, label, pct, color) {
+  const cv = document.getElementById(id);
+  if (!cv) return;
+  const cx = cv.getContext('2d');
+  const S = 64, H = S / 2, pad = 5, r = H - pad;
+  const toR = Math.PI / 180;
+  cx.clearRect(0, 0, S, S);
+
+  // track
+  cx.beginPath();
+  cx.arc(H, H, r, 135 * toR, (135 + 270) * toR);
+  cx.strokeStyle = '#4a5568';
+  cx.lineWidth   = 4;
+  cx.lineCap     = 'round';
+  cx.stroke();
+
+  // value
+  if (pct > 0) {
+    cx.beginPath();
+    cx.arc(H, H, r, 135 * toR, (135 + pct / 100 * 270) * toR);
+    cx.strokeStyle = color;
+    cx.lineWidth   = 4;
+    cx.lineCap     = 'round';
+    cx.stroke();
+  }
+
+  // label
+  cx.fillStyle    = '#e2e8f0';
+  cx.font         = 'bold 9px "Segoe UI"';
+  cx.textAlign    = 'center';
+  cx.textBaseline = 'middle';
+  cx.fillText(pct + '%', H, H - 4);
+  cx.fillStyle    = '#8899aa';
+  cx.font         = '7px "Segoe UI"';
+  cx.fillText(label, H, H + 9);
+}
+
+drawGauge('g-cpu', 'CPU',      92, '#00b4d8');
+drawGauge('g-mem', 'Memory',   76, '#06d6a0');
+drawGauge('g-res', 'Response', 98, '#7b61ff');
+</script>
+</body>
+</html>
